@@ -1,7 +1,7 @@
 "use strict";
 
 import "./style.css";
-import { mdiMenu, mdiHome, mdiPlus, mdiTrayFull, mdiCalendarTodayOutline, mdiChevronRight, mdiCheckboxBlankCircleOutline } from "@mdi/js";
+import { mdiMenu, mdiHome, mdiPlus, mdiTrayFull, mdiCalendarTodayOutline, mdiChevronRight, mdiCheckboxBlankCircleOutline, mdiPen, mdiPencilOutline, mdiArmFlex } from "@mdi/js";
 
 function createSvg(size, colour, svgPath) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -16,7 +16,15 @@ function createSvg(size, colour, svgPath) {
   return svg
 }
 
+function sidebarButtonSelectHandler(button) {
+  document.querySelector(".sidebar").querySelector(".selected").classList.remove("selected");
+  button.classList.add("selected");
+}
+
 function setupPage() {
+  function displayTaskInputForm() {
+  }
+
   function setupNavbar() {
     const sidebarButton = document.querySelector(".sidebar-toggle");
     sidebarButton.append(createSvg(24, "white", mdiMenu));
@@ -28,25 +36,38 @@ function setupPage() {
         sidebar.classList.add("hidden")
       }
     });
+
     const homeButton = document.querySelector(".home");
     homeButton.append(createSvg(24, "white", mdiHome));
+    homeButton.addEventListener("click", (e) => {
+      projects.displayProject(projects.getProject("Inbox")[0]);
+    });
+
     const addTaskButton = document.querySelector(".add-task");
     addTaskButton.append(createSvg(24, "white", mdiPlus));
-  }
-  
-  function sidebarButtonSelectHandler(button) {
-    document.querySelector(".sidebar").querySelector(".selected").classList.remove("selected");
-    button.classList.add("selected");
+    addTaskButton.addEventListener("click", (e) => {
+      displayTaskInputForm();
+    });
+
+    const formInputButton = document.querySelector(".submit-new-task-form");
+    formInputButton.addEventListener("click", (e) => {
+      console.log(e.target);
+    });
   }
   
   function setupSidebar() {
     const inboxButton = document.querySelector(".inbox");
     inboxButton.prepend(createSvg(24, "#246FE0", mdiTrayFull));
-    inboxButton.addEventListener("click", (e) => sidebarButtonSelectHandler(e.target));
+    inboxButton.addEventListener("click", (e) => {
+      sidebarButtonSelectHandler(e.target);
+      projects.displayProject(projects.getProject("Inbox")[0]);
+    });
   
     const todayButton = document.querySelector(".today");
     todayButton.prepend(createSvg(24, "#058527", mdiCalendarTodayOutline));
-    todayButton.addEventListener("click", (e) => sidebarButtonSelectHandler(e.target));
+    todayButton.addEventListener("click", (e) => {
+      sidebarButtonSelectHandler(e.target);
+    });
   
     const projectsButton = document.querySelector("button.projects");
     projectsButton.prepend(createSvg(24, "#3D3D3D", mdiChevronRight));
@@ -64,7 +85,12 @@ function setupPage() {
     const addProjectButton = document.querySelector("button.add-project");
     addProjectButton.prepend(createSvg(24, "#3D3D3D", mdiPlus));
     addProjectButton.addEventListener("click", (e) => {
-      
+      let projectName = prompt("What's the name of your new project?");
+      while (projectName === "") {
+        projectName = prompt("Please insert a project name.\nWhat's the name of your new project?");
+      }
+      if (projectName === null) return;
+      projects.createProject(projectName);
     });
   }
 
@@ -82,14 +108,27 @@ const projects = (() => {
       const display = () => {
         const task = document.createElement("div");
         task.classList.add("task");
+
+        let leftDiv = document.createElement("div");
+        leftDiv.classList.add("left");
     
         let button = document.createElement("button");
+        button.classList.add("complete-task");
         button.appendChild(createSvg(24, "#9C9C9C", mdiCheckboxBlankCircleOutline));
-        task.appendChild(button);
+        leftDiv.appendChild(button);
     
         let name = document.createElement("p");
         name.innerText = title;
-        task.appendChild(name);
+        leftDiv.appendChild(name);
+        task.appendChild(leftDiv);
+
+        let edit = document.createElement("button");
+        edit.classList.add("edit-task");
+        edit.appendChild(createSvg(24, "#9C9C9C", mdiPencilOutline))
+        edit.addEventListener("click", (e) => {
+          console.log(e.target.closest(".edit-task"));
+        });
+        task.appendChild(edit);
         
         document.querySelector(".tasks").append(task);
       }
@@ -125,38 +164,74 @@ const projects = (() => {
     const getName = () => {
       return name;
     }
-  
-    const addTask = (title, description, dueDate, priority) => {
-      const task = _task(title, description, dueDate, priority);
-      _tasks.push(task);
-      if (_tasks.length > 1) {
+
+    const displayTask = (task) => {
+      if (document.querySelector(".tasks").childElementCount > 0) {
         document.querySelector(".tasks").appendChild(document.createElement("hr"));
       }
       task.display();
     }
   
+    const addTask = (title, description, dueDate, priority) => {
+      const task = _task(title, description, dueDate, priority);
+      _tasks.push(task);
+      displayTask(task);
+    }
+
     const removeTask = (task) => {
       _tasks = _tasks.filter(t => t !== task);
     }
+
+    const getTasks = () => {
+      return Array.from(_tasks);
+    }
   
-    return { addTask, removeTask, getName }
+    return { getName, displayTask, addTask, removeTask, getTasks }
+  }
+
+  const _displayProjectButton = (project) => {
+    const list = document.querySelector(".project-buttons");
+
+    const button = document.createElement("button");
+    button.classList.add("project");
+    button.innerText = project.getName();
+    button.addEventListener("click", (e) => {
+      displayProject(project);
+      sidebarButtonSelectHandler(e.target);
+    });
+
+    list.insertBefore(button, document.querySelector(".add-project"));
   }
 
   const createProject = (name) => {
-    _projects.push(_project(name));
+    const project = _project(name)
+    _projects.push(project);
+    _displayProjectButton(project);
+  }
+
+  const displayProject = (project) => {
+    console.log(project.getName());
+    document.querySelector("h1.project-name").innerText = project.getName();
+    document.querySelector(".tasks").replaceChildren();
+    for (let task of project.getTasks()) {
+      if (task != null) {
+        project.displayTask(task);
+      }
+    }
   }
 
   const getProject = (name) => {
     return _projects.filter(p => name === p.getName());
   }
 
-  return { createProject, getProject }
+  _projects.push(_project("Inbox"));
+
+  return { createProject, getProject, displayProject }
 })();
 
 
 
 setupPage();
-projects.createProject("Inbox");
 
 const inbox = projects.getProject("Inbox")[0];
 inbox.addTask("Example task 1", "Description of example task 1", "", "");

@@ -5,9 +5,25 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Todo List</title>
-  <script src="./index.bundle.js" defer></script>
+  <script type="text/javascript" src="./index.bundle.js" defer></script>
 </head>
 <body>
+  <div class="new-task-form">
+    <form>
+      <input type="text" id="title" placeholder="Task Name">
+      <input type="text" id="description" placeholder="Description">
+      <input type="date" id="dueDate">
+      <input type="number" id="priority" placeholder="Priority">
+      <select id="project">
+        <option value="Select Project">Select Project</option>
+        <option value="Inbox">Inbox</option>
+      </select>
+    </form>
+    <div class="buttons">
+      <button class="cancel">Cancel</button>
+      <button class="submit-new-task-form">Add Task</button>
+    </div>
+  </div>
   <div class="navbar">
     <div class="left">
       <button class="sidebar-toggle"></button>
@@ -24,14 +40,12 @@
       <div class="projects-list closed">
         <button class="projects">Projects</button>
         <div class="project-buttons">
-          <button>Hello</button>
-          <button>Hello</button>
           <button class="add-project">New Project</button>
         </div>
       </div>
     </div>
     <div class="main">
-      <h1>Inbox</h1>
+      <h1 class="project-name">Inbox</h1>
       <div class="tasks"></div>
     </div>
   </div>
