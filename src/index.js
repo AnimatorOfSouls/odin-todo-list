@@ -22,9 +22,6 @@ function sidebarButtonSelectHandler(button) {
 }
 
 function setupPage() {
-  function displayTaskInputForm() {
-  }
-
   function setupNavbar() {
     const sidebarButton = document.querySelector(".sidebar-toggle");
     sidebarButton.append(createSvg(24, "white", mdiMenu));
@@ -40,18 +37,13 @@ function setupPage() {
     const homeButton = document.querySelector(".home");
     homeButton.append(createSvg(24, "white", mdiHome));
     homeButton.addEventListener("click", (e) => {
-      projects.displayProject(projects.getProject("Inbox")[0]);
+      projects.displayProject(projects.getProject("Inbox"));
     });
 
     const addTaskButton = document.querySelector(".add-task");
     addTaskButton.append(createSvg(24, "white", mdiPlus));
     addTaskButton.addEventListener("click", (e) => {
-      displayTaskInputForm();
-    });
-
-    const formInputButton = document.querySelector(".submit-new-task-form");
-    formInputButton.addEventListener("click", (e) => {
-      console.log(e.target);
+      document.querySelector(".new-task-form").classList.remove("hidden");
     });
   }
   
@@ -60,7 +52,7 @@ function setupPage() {
     inboxButton.prepend(createSvg(24, "#246FE0", mdiTrayFull));
     inboxButton.addEventListener("click", (e) => {
       sidebarButtonSelectHandler(e.target);
-      projects.displayProject(projects.getProject("Inbox")[0]);
+      projects.displayProject(projects.getProject("Inbox"));
     });
   
     const todayButton = document.querySelector(".today");
@@ -94,8 +86,65 @@ function setupPage() {
     });
   }
 
+  
+
+  function setupTaskInputForm() {
+    function checkAddTaskFormValid(form) {
+      if (form.querySelector("#title").value == "") return false;
+      if (form.querySelector("#priority").value == "") return false;
+      if (form.querySelector("#project").value == "Select Project") return false;
+      return true;
+    }
+  
+    function addTaskFormHandler(form) {
+      const isValid = checkAddTaskFormValid(form);
+      if (isValid) {
+        const title = form.querySelector("#title").value;
+        const description = form.querySelector("#description").value;
+        const dueDate = form.querySelector("#dueDate").value;
+        const priority = form.querySelector("#priority").value;
+        const project = form.querySelector("#project").value;
+        projects.getProject(project).addTask(title, description, dueDate, priority);
+  
+        document.querySelector(".new-task-form").classList.add("hidden");
+        resetForm(form);
+      }
+    }
+
+    function resetForm(form) {
+      document.querySelector(".submit-new-task-form").classList.add("disabled");
+      form.reset();
+    }
+
+    const formInputButton = document.querySelector(".submit-new-task-form");
+    formInputButton.addEventListener("click", (e) => {
+      addTaskFormHandler(e.target.closest(".new-task-form").querySelector("form"));
+    });
+
+    const formCancelButton = document.querySelector(".new-task-form").querySelector(".cancel");
+    formCancelButton.addEventListener("click", (e) => {
+      const formDiv = document.querySelector(".new-task-form");
+      formDiv.classList.add("hidden");
+      resetForm(formDiv.querySelector("form"));
+    });
+
+    const form = document.querySelector(".new-task-form").querySelector("form");
+    form.addEventListener("input", () => {
+      const isValid = checkAddTaskFormValid(form);
+      console.log()
+      if (isValid) {
+        document.querySelector(".submit-new-task-form").classList.remove("disabled");
+      } else {
+        document.querySelector(".submit-new-task-form").classList.add("disabled");
+      }
+    });
+
+    
+  }
+
   setupNavbar();
   setupSidebar();
+  setupTaskInputForm();
 }
 
 const projects = (() => {
@@ -221,7 +270,7 @@ const projects = (() => {
   }
 
   const getProject = (name) => {
-    return _projects.filter(p => name === p.getName());
+    return _projects.filter(p => name === p.getName())[0];
   }
 
   _projects.push(_project("Inbox"));
@@ -233,6 +282,6 @@ const projects = (() => {
 
 setupPage();
 
-const inbox = projects.getProject("Inbox")[0];
+const inbox = projects.getProject("Inbox");
 inbox.addTask("Example task 1", "Description of example task 1", "", "");
 inbox.addTask("Example task 2", "Description of example task 2", "", "");

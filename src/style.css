@@ -65,11 +65,15 @@ body {
 .new-task-form .buttons > button {
   border: none;
   border-radius: 8px;
-  background-color: #ABABAB;
+  background-color: #292929;
   color: white;
   font-size: 12px;
   font-weight: 700;
   padding: 8px 12px;
+}
+
+.new-task-form .buttons .submit-new-task-form.disabled {
+  background-color: #ABABAB;
 }
 
 .new-task-form .buttons .cancel {

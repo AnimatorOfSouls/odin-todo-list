@@ -10,18 +10,18 @@
 <body>
   <div class="new-task-form">
     <form>
-      <input type="text" id="title" placeholder="Task Name">
+      <input type="text" id="title" placeholder="Task Name (required)">
       <input type="text" id="description" placeholder="Description">
       <input type="date" id="dueDate">
-      <input type="number" id="priority" placeholder="Priority">
+      <input type="number" id="priority" placeholder="Priority (required)">
       <select id="project">
-        <option value="Select Project">Select Project</option>
+        <option value="Select Project">Select Project (required)</option>
         <option value="Inbox">Inbox</option>
       </select>
     </form>
     <div class="buttons">
       <button class="cancel">Cancel</button>
-      <button class="submit-new-task-form">Add Task</button>
+      <button class="submit-new-task-form disabled">Add Task</button>
     </div>
   </div>
   <div class="navbar">
