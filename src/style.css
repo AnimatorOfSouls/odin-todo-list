@@ -210,10 +210,16 @@ body {
 .main .task {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: 8px 20px 8px 0;
 }
 
 .main .task .left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.main .task .right {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -230,16 +236,17 @@ body {
   border-radius: 4px;
 }
 
-.main .task button.edit-task {
+.main .task button.edit-task,
+.main .task button.view-task-details {
   display: none;
-  margin-right: 20px;
-  
 }
 
-.main .task:hover button.edit-task {
+.main .task:hover button.edit-task,
+.main .task:hover button.view-task-details {
   display: block;
 }
 
-.main .task:hover button.edit-task:hover {
+.main .task:hover button.edit-task:hover,
+.main .task:hover button.view-task-details:hover {
   background-color: #EEEEEE;
 }
